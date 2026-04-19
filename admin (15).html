@@ -1,0 +1,1498 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel | Trusted Mobile Point</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root {
+  --bg: #0b0f1a;
+  --surface: #111827;
+  --surface2: #1a2236;
+  --surface3: #222d42;
+  --border: rgba(255,255,255,0.07);
+  --accent: #099cf8;
+  --accent-dim: rgba(9,156,248,0.12);
+  --accent2: #f5a623;
+  --success: #10b981;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --text: #e2e8f0;
+  --text-muted: #64748b;
+  --text-dim: #94a3b8;
+  --sidebar-w: 260px;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.4);
+  --transition: all 0.22s cubic-bezier(0.4,0,0.2,1);
+}
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+
+/* ===== LOGIN SCREEN ===== */
+#loginScreen {
+  position: fixed; inset: 0; z-index: 9999;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bg);
+  background-image: radial-gradient(ellipse at 20% 50%, rgba(9,156,248,0.06) 0%, transparent 60%),
+                    radial-gradient(ellipse at 80% 20%, rgba(245,166,35,0.05) 0%, transparent 60%);
+}
+.login-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 2.5rem 2.2rem;
+  width: 100%; max-width: 380px;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+  animation: fadeSlideUp 0.5s ease;
+}
+@keyframes fadeSlideUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:none; } }
+.login-logo {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 1.1rem; font-weight: 800; color: var(--text);
+  margin-bottom: 0.4rem;
+}
+.login-logo .dot { color: var(--accent); }
+.login-sub { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1.8rem; }
+.login-title { font-size: 1.4rem; font-weight: 700; margin-bottom: 0.3rem; }
+.form-field { margin-bottom: 1rem; }
+.form-field label { display: block; font-size: 0.78rem; font-weight: 600; color: var(--text-dim); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+.form-field input {
+  width: 100%; padding: 11px 14px; background: var(--surface2);
+  border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+  color: var(--text); font-size: 0.92rem; font-family: inherit;
+  outline: none; transition: var(--transition);
+}
+.form-field input:focus { border-color: var(--accent); background: var(--surface3); }
+.btn-login {
+  width: 100%; padding: 12px; background: var(--accent); color: #fff;
+  border: none; border-radius: var(--radius-sm); font-size: 0.95rem; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: var(--transition); margin-top: 0.5rem;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-login:hover { background: #0886d4; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(9,156,248,0.3); }
+.login-error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5; padding: 10px 14px; border-radius: var(--radius-sm); font-size: 0.85rem; margin-top: 0.8rem; display: none; text-align:center; }
+.login-error.show { display: block; animation: fadeSlideUp 0.3s ease; }
+/* PIN PAD */
+.pin-dot {
+  width: 16px; height: 16px; border-radius: 50%;
+  border: 2px solid var(--text-muted);
+  background: transparent;
+  transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+}
+.pin-dot.filled { background: var(--accent); border-color: var(--accent); transform: scale(1.15); box-shadow: 0 0 10px rgba(9,156,248,0.5); }
+.pin-dot.shake { animation: shake 0.4s ease; border-color: var(--danger); background: var(--danger); }
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+.num-btn {
+  padding: 16px; background: var(--surface2); border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm); color: var(--text); font-size: 1.2rem; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: var(--transition);
+  display: flex; align-items: center; justify-content: center;
+}
+.num-btn:hover { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); transform: scale(1.05); }
+.num-btn:active { transform: scale(0.95); }
+.num-del { font-size: 1rem; color: var(--text-muted); }
+.num-del:hover { color: var(--danger); border-color: var(--danger); background: rgba(239,68,68,0.08); }
+
+/* ===== APP SHELL ===== */
+#appShell { display: none; }
+#appShell.visible { display: flex; }
+
+/* ===== SIDEBAR ===== */
+.sidebar {
+  width: var(--sidebar-w); min-height: 100vh; background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  position: fixed; top: 0; left: 0; z-index: 100;
+  transition: transform 0.3s ease;
+}
+.sidebar-header {
+  padding: 1.5rem 1.4rem 1.2rem;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-brand { font-size: 1rem; font-weight: 800; color: var(--text); }
+.sidebar-brand span { color: var(--accent); }
+.sidebar-sub { font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; }
+.sidebar-nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
+.nav-section { margin-bottom: 1.5rem; }
+.nav-section-title { font-size: 0.62rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.2px; padding: 0 0.6rem; margin-bottom: 6px; }
+.nav-item {
+  display: flex; align-items: center; gap: 11px;
+  padding: 10px 12px; border-radius: var(--radius-sm);
+  color: var(--text-dim); font-size: 0.88rem; font-weight: 500;
+  cursor: pointer; transition: var(--transition); margin-bottom: 2px;
+  user-select: none; border: none; background: none; width: 100%; text-align: left; font-family: inherit;
+}
+.nav-item i { width: 18px; text-align: center; font-size: 0.85rem; }
+.nav-item:hover { background: var(--accent-dim); color: var(--accent); }
+.nav-item.active { background: var(--accent-dim); color: var(--accent); font-weight: 600; }
+.nav-badge {
+  margin-left: auto; background: var(--accent); color: #fff;
+  font-size: 0.65rem; font-weight: 700; padding: 2px 7px; border-radius: 50px;
+  display: none;
+}
+.nav-badge.show { display: inline-block; }
+.sidebar-footer {
+  padding: 1rem 0.75rem; border-top: 1px solid var(--border);
+}
+.admin-user {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: var(--radius-sm); background: var(--surface2);
+}
+.admin-avatar {
+  width: 34px; height: 34px; border-radius: 50%; background: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.85rem; font-weight: 700; flex-shrink: 0;
+}
+.admin-info { flex: 1; min-width: 0; }
+.admin-name { font-size: 0.82rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.admin-role { font-size: 0.68rem; color: var(--accent); }
+.logout-btn { background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 0.85rem; transition: var(--transition); padding: 4px; border-radius: 4px; }
+.logout-btn:hover { color: var(--danger); }
+
+/* ===== MAIN CONTENT ===== */
+.main-content {
+  margin-left: var(--sidebar-w);
+  flex: 1; min-height: 100vh;
+  display: flex; flex-direction: column;
+}
+.topbar {
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 0 1.8rem; height: 62px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 50;
+}
+.topbar-left { display: flex; align-items: center; gap: 12px; }
+.topbar-title { font-size: 1.05rem; font-weight: 700; }
+.topbar-breadcrumb { font-size: 0.78rem; color: var(--text-muted); }
+.hamburger-btn {
+  display: none; background: none; border: none; color: var(--text);
+  font-size: 1.2rem; cursor: pointer; padding: 6px;
+}
+.topbar-right { display: flex; align-items: center; gap: 10px; }
+.topbar-time { font-size: 0.78rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+.btn-refresh {
+  background: var(--surface2); border: 1px solid var(--border); color: var(--text-dim);
+  padding: 7px 12px; border-radius: var(--radius-sm); font-size: 0.8rem; cursor: pointer;
+  transition: var(--transition); display: flex; align-items: center; gap: 6px; font-family: inherit;
+}
+.btn-refresh:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ===== PAGE ===== */
+.page { display: none; padding: 1.8rem; }
+.page.active { display: block; animation: pageIn 0.28s ease; }
+@keyframes pageIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+
+/* ===== STATS GRID ===== */
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.2rem; margin-bottom: 1.8rem; }
+.stat-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 1.3rem 1.4rem;
+  transition: var(--transition); cursor: default;
+}
+.stat-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.stat-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+.stat-icon { width: 40px; height: 40px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+.stat-icon.blue { background: rgba(9,156,248,0.12); color: var(--accent); }
+.stat-icon.green { background: rgba(16,185,129,0.12); color: var(--success); }
+.stat-icon.orange { background: rgba(245,166,35,0.12); color: var(--accent2); }
+.stat-icon.red { background: rgba(239,68,68,0.12); color: var(--danger); }
+.stat-trend { font-size: 0.7rem; color: var(--success); background: rgba(16,185,129,0.1); padding: 3px 8px; border-radius: 50px; }
+.stat-value { font-size: 2rem; font-weight: 800; line-height: 1; margin-bottom: 4px; font-family: 'JetBrains Mono', monospace; }
+.stat-label { font-size: 0.78rem; color: var(--text-muted); font-weight: 500; }
+
+/* ===== SECTION HEADER ===== */
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; flex-wrap: wrap; gap: 10px; }
+.section-title { font-size: 1rem; font-weight: 700; }
+.section-title span { color: var(--accent); }
+
+/* ===== BUTTONS ===== */
+.btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 8px 16px; border-radius: var(--radius-sm);
+  font-size: 0.85rem; font-weight: 600; cursor: pointer;
+  transition: var(--transition); border: none; font-family: inherit;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: #0886d4; transform: translateY(-1px); }
+.btn-success { background: var(--success); color: #fff; }
+.btn-success:hover { background: #059669; }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-danger:hover { background: #dc2626; }
+.btn-warning { background: var(--warning); color: #fff; }
+.btn-ghost { background: var(--surface2); border: 1px solid var(--border); color: var(--text-dim); }
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+.btn-sm { padding: 5px 10px; font-size: 0.75rem; }
+.btn-icon { width: 32px; height: 32px; padding: 0; justify-content: center; }
+
+/* ===== TABLE ===== */
+.table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.table-toolbar { padding: 1rem 1.2rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.search-input {
+  flex: 1; min-width: 200px; padding: 8px 14px 8px 36px;
+  background: var(--surface2); border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm); color: var(--text); font-size: 0.85rem;
+  font-family: inherit; outline: none; transition: var(--transition);
+  position: relative;
+}
+.search-input:focus { border-color: var(--accent); }
+.search-wrap { position: relative; flex: 1; min-width: 200px; }
+.search-wrap i { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.8rem; }
+table { width: 100%; border-collapse: collapse; }
+th {
+  font-size: 0.72rem; font-weight: 700; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.6px;
+  padding: 12px 14px; text-align: left;
+  border-bottom: 1px solid var(--border); white-space: nowrap;
+}
+td {
+  padding: 13px 14px; font-size: 0.85rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--surface2); }
+.product-thumb {
+  width: 44px; height: 44px; border-radius: var(--radius-sm);
+  background: var(--surface2); object-fit: cover; display: flex;
+  align-items: center; justify-content: center; overflow: hidden;
+  border: 1px solid var(--border); flex-shrink: 0;
+}
+.product-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.product-thumb-cell { display: flex; align-items: center; gap: 10px; }
+.product-thumb-name { font-weight: 600; font-size: 0.87rem; }
+.product-thumb-model { font-size: 0.73rem; color: var(--text-muted); margin-top: 1px; }
+
+/* STATUS BADGES */
+.badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: 50px; font-size: 0.72rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.3px;
+}
+.badge-pending { background: rgba(245,158,11,0.15); color: #f59e0b; }
+.badge-processing { background: rgba(9,156,248,0.15); color: var(--accent); }
+.badge-delivered { background: rgba(16,185,129,0.15); color: var(--success); }
+.badge-cancelled { background: rgba(239,68,68,0.15); color: var(--danger); }
+.badge-new { background: rgba(139,92,246,0.15); color: #a78bfa; }
+
+/* ===== MODAL ===== */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; z-index: 500;
+  background: rgba(0,0,0,0.7); backdrop-filter: blur(6px);
+  align-items: center; justify-content: center; padding: 1rem;
+}
+.modal-overlay.open { display: flex; }
+.modal-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; padding: 2rem;
+  width: 100%; max-width: 560px;
+  max-height: 90vh; overflow-y: auto;
+  animation: fadeSlideUp 0.28s ease;
+  position: relative;
+}
+.modal-box.wide { max-width: 720px; }
+.modal-close {
+  position: absolute; top: 1.2rem; right: 1.2rem;
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text-dim); width: 30px; height: 30px;
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 0.9rem; transition: var(--transition);
+}
+.modal-close:hover { background: var(--danger); color: #fff; border-color: var(--danger); }
+.modal-title { font-size: 1.15rem; font-weight: 700; margin-bottom: 1.4rem; padding-right: 2rem; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.form-group { margin-bottom: 1rem; }
+.form-group.full { grid-column: 1 / -1; }
+.form-group label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--text-dim); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+.form-group input, .form-group textarea, .form-group select {
+  width: 100%; padding: 10px 13px; background: var(--surface2);
+  border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+  color: var(--text); font-size: 0.88rem; font-family: inherit;
+  outline: none; transition: var(--transition);
+}
+.form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--accent); background: var(--surface3); }
+.form-group textarea { resize: vertical; min-height: 100px; }
+.form-group select option { background: var(--surface2); }
+.form-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 1.4rem; padding-top: 1.2rem; border-top: 1px solid var(--border); }
+
+/* ===== IMAGE PREVIEW ===== */
+.img-preview {
+  width: 100%; height: 160px; background: var(--surface2);
+  border: 2px dashed var(--border); border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 8px; color: var(--text-muted);
+  font-size: 0.8rem; overflow: hidden; margin-top: 6px;
+}
+.img-preview img { width: 100%; height: 100%; object-fit: contain; }
+.img-preview i { font-size: 2rem; }
+
+/* ===== TOAST ===== */
+.toast-container { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+.toast {
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--text); padding: 12px 18px; border-radius: var(--radius-sm);
+  font-size: 0.88rem; font-weight: 500; box-shadow: var(--shadow);
+  animation: toastIn 0.3s ease; max-width: 300px;
+  display: flex; align-items: center; gap: 10px;
+}
+.toast.success { border-left: 3px solid var(--success); }
+.toast.error { border-left: 3px solid var(--danger); }
+.toast.info { border-left: 3px solid var(--accent); }
+@keyframes toastIn { from { opacity:0; transform:translateX(20px); } to { opacity:1; transform:none; } }
+
+/* ===== EMPTY STATE ===== */
+.empty-state { text-align: center; padding: 3rem; color: var(--text-muted); }
+.empty-state i { font-size: 2.5rem; margin-bottom: 1rem; display: block; opacity: 0.4; }
+.empty-state h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--text-dim); }
+.empty-state p { font-size: 0.82rem; }
+
+/* ===== LOADER ===== */
+.loader-wrap { text-align: center; padding: 3rem; color: var(--text-muted); }
+.loader-wrap i { font-size: 1.5rem; animation: spin 1s linear infinite; display: block; margin-bottom: 0.5rem; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ===== DASHBOARD ===== */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.4rem; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+.card-header { padding: 1rem 1.4rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.card-title { font-size: 0.88rem; font-weight: 700; }
+.card-body { padding: 1rem 1.4rem; }
+.order-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); gap: 10px; }
+.order-row:last-child { border-bottom: none; }
+.order-info { flex: 1; min-width: 0; }
+.order-name { font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.order-meta { font-size: 0.73rem; color: var(--text-muted); margin-top: 2px; }
+.order-price { font-size: 0.88rem; font-weight: 700; color: var(--accent); flex-shrink: 0; font-family: 'JetBrains Mono', monospace; }
+.msg-row { padding: 10px 0; border-bottom: 1px solid var(--border); }
+.msg-row:last-child { border-bottom: none; }
+.msg-sender { font-size: 0.85rem; font-weight: 600; margin-bottom: 2px; }
+.msg-subject { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 4px; }
+.msg-preview { font-size: 0.77rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.msg-time { font-size: 0.68rem; color: var(--text-muted); margin-top: 4px; }
+
+/* ===== PRODUCT DETAIL IN MODAL ===== */
+.detail-row { display: flex; gap: 8px; margin-bottom: 10px; font-size: 0.85rem; }
+.detail-label { color: var(--text-muted); min-width: 100px; font-weight: 500; }
+.detail-val { color: var(--text); flex: 1; word-break: break-word; }
+
+/* ===== INLINE EDITOR ===== */
+.status-select {
+  padding: 5px 10px; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); color: var(--text); font-size: 0.8rem; font-family: inherit; outline: none; cursor: pointer;
+}
+
+/* ===== FILTER BAR ===== */
+.filter-bar { display: flex; gap: 8px; flex-wrap: wrap; }
+.filter-btn {
+  padding: 6px 14px; border-radius: 50px; font-size: 0.78rem; font-weight: 600;
+  border: 1.5px solid var(--border); background: transparent; color: var(--text-muted);
+  cursor: pointer; transition: var(--transition); font-family: inherit;
+}
+.filter-btn:hover, .filter-btn.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+
+/* ===== MESSAGE CARD ===== */
+.message-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 1.2rem;
+  margin-bottom: 0.8rem; transition: var(--transition);
+}
+.message-card:hover { border-color: var(--accent); }
+.message-card.unread { border-left: 3px solid var(--accent); }
+.mc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; gap: 10px; }
+.mc-sender { font-weight: 700; font-size: 0.9rem; }
+.mc-email { font-size: 0.75rem; color: var(--text-muted); }
+.mc-subject { font-size: 0.82rem; color: var(--accent); margin-bottom: 6px; font-weight: 600; }
+.mc-body { font-size: 0.83rem; color: var(--text-dim); line-height: 1.6; }
+.mc-time { font-size: 0.7rem; color: var(--text-muted); margin-top: 8px; }
+
+/* ===== REVIEW CARD ===== */
+.review-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 1.2rem; margin-bottom: 0.8rem;
+}
+.rc-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.rc-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--accent-dim); border: 2px solid var(--accent); overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1rem; color: var(--accent); font-weight: 700; }
+.rc-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.rc-name { font-weight: 700; font-size: 0.88rem; }
+.rc-location { font-size: 0.72rem; color: var(--text-muted); }
+.rc-text { font-size: 0.83rem; color: var(--text-dim); line-height: 1.6; font-style: italic; margin-bottom: 8px; }
+.rc-votes { display: flex; gap: 10px; }
+.vote-pill { display: flex; align-items: center; gap: 5px; font-size: 0.72rem; font-weight: 600; padding: 3px 10px; border-radius: 50px; }
+.vote-pill.yes { background: rgba(16,185,129,0.1); color: var(--success); }
+.vote-pill.no { background: rgba(239,68,68,0.1); color: var(--danger); }
+
+/* ===== USERS ===== */
+.user-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; flex-shrink: 0; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1024px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .grid-2 { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.mobile-open { transform: translateX(0); box-shadow: 0 0 40px rgba(0,0,0,0.5); }
+  .main-content { margin-left: 0; }
+  .hamburger-btn { display: block; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .form-grid { grid-template-columns: 1fr; }
+  .topbar { padding: 0 1rem; }
+  .page { padding: 1.2rem; }
+  .topbar-time { display: none; }
+}
+@media (max-width: 480px) {
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .modal-box { padding: 1.4rem; }
+}
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">
+      <i class="fas fa-mobile-alt" style="color:var(--accent)"></i>
+      Trusted<span class="dot"> Mobile Point</span>
+    </div>
+    <p class="login-sub">Admin Control Panel</p>
+    <div style="text-align:center;margin-bottom:1.6rem">
+      <div style="font-size:2rem;margin-bottom:6px">🔐</div>
+      <div style="font-size:1.1rem;font-weight:700">সিক্রেট কোড দিন</div>
+      <div style="font-size:0.78rem;color:var(--text-muted);margin-top:4px">Admin অ্যাক্সেসের জন্য কোড লিখুন</div>
+    </div>
+
+    <!-- PIN DOTS -->
+    <div id="pinDots" style="display:flex;justify-content:center;gap:14px;margin-bottom:1.8rem">
+      <div class="pin-dot" id="dot0"></div>
+      <div class="pin-dot" id="dot1"></div>
+      <div class="pin-dot" id="dot2"></div>
+      <div class="pin-dot" id="dot3"></div>
+    </div>
+
+    <!-- NUMBER PAD -->
+    <div id="numpad" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1rem">
+      <button class="num-btn" onclick="pinPress('1')">1</button>
+      <button class="num-btn" onclick="pinPress('2')">2</button>
+      <button class="num-btn" onclick="pinPress('3')">3</button>
+      <button class="num-btn" onclick="pinPress('4')">4</button>
+      <button class="num-btn" onclick="pinPress('5')">5</button>
+      <button class="num-btn" onclick="pinPress('6')">6</button>
+      <button class="num-btn" onclick="pinPress('7')">7</button>
+      <button class="num-btn" onclick="pinPress('8')">8</button>
+      <button class="num-btn" onclick="pinPress('9')">9</button>
+      <button class="num-btn" style="opacity:0;pointer-events:none"></button>
+      <button class="num-btn" onclick="pinPress('0')">0</button>
+      <button class="num-btn num-del" onclick="pinDelete()"><i class="fas fa-delete-left"></i></button>
+    </div>
+
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<!-- APP SHELL -->
+<div id="appShell">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-brand">Trusted <span>Mobile Point</span></div>
+      <div class="sidebar-sub">Admin Dashboard v2.0</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-title">প্রধান</div>
+        <button class="nav-item active" onclick="showPage('dashboard')">
+          <i class="fas fa-chart-pie"></i> ড্যাশবোর্ড
+        </button>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-title">স্টোর</div>
+        <button class="nav-item" onclick="showPage('products')">
+          <i class="fas fa-mobile-alt"></i> প্রোডাক্ট
+          <span class="nav-badge" id="badge-products">0</span>
+        </button>
+        <button class="nav-item" onclick="showPage('orders')">
+          <i class="fas fa-shopping-bag"></i> অর্ডার
+          <span class="nav-badge show" id="badge-orders" style="background:var(--warning)">0</span>
+        </button>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-title">গ্রাহক</div>
+        <button class="nav-item" onclick="showPage('messages')">
+          <i class="fas fa-envelope"></i> মেসেজ
+          <span class="nav-badge show" id="badge-messages" style="background:var(--success)">0</span>
+        </button>
+        <button class="nav-item" onclick="showPage('reviews')">
+          <i class="fas fa-star"></i> রিভিউ
+          <span class="nav-badge" id="badge-reviews">0</span>
+        </button>
+        <button class="nav-item" onclick="showPage('users')">
+          <i class="fas fa-users"></i> ইউজার
+        </button>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-title">সেটিংস</div>
+        <a href="index.html" target="_blank" style="text-decoration:none;">
+          <button class="nav-item">
+            <i class="fas fa-external-link-alt"></i> সাইট দেখুন
+          </button>
+        </a>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="admin-user">
+        <div class="admin-avatar" id="adminAvatar">A</div>
+        <div class="admin-info">
+          <div class="admin-name" id="adminName">Admin</div>
+          <div class="admin-role">Super Admin</div>
+        </div>
+        <button class="logout-btn" onclick="doLogout()" title="লগআউট">
+          <i class="fas fa-sign-out-alt"></i>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger-btn" onclick="toggleSidebar()">
+          <i class="fas fa-bars"></i>
+        </button>
+        <div>
+          <div class="topbar-title" id="topbarTitle">ড্যাশবোর্ড</div>
+          <div class="topbar-breadcrumb">Trusted Mobile Point</div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-time" id="clock">--:--:--</div>
+        <button class="btn-refresh" onclick="refreshData()"><i class="fas fa-sync-alt"></i> রিফ্রেশ</button>
+      </div>
+    </div>
+
+    <!-- ===== DASHBOARD PAGE ===== -->
+    <div class="page active" id="page-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-header">
+            <div class="stat-icon blue"><i class="fas fa-mobile-alt"></i></div>
+            <span class="stat-trend">লাইভ</span>
+          </div>
+          <div class="stat-value" id="stat-products">–</div>
+          <div class="stat-label">মোট প্রোডাক্ট</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-header">
+            <div class="stat-icon orange"><i class="fas fa-shopping-bag"></i></div>
+          </div>
+          <div class="stat-value" id="stat-orders">–</div>
+          <div class="stat-label">মোট অর্ডার</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-header">
+            <div class="stat-icon green"><i class="fas fa-taka-sign"></i></div>
+          </div>
+          <div class="stat-value" id="stat-revenue">–</div>
+          <div class="stat-label">মোট আয় (৳)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-header">
+            <div class="stat-icon red"><i class="fas fa-envelope"></i></div>
+          </div>
+          <div class="stat-value" id="stat-messages">–</div>
+          <div class="stat-label">নতুন মেসেজ</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title"><i class="fas fa-clock" style="color:var(--accent);margin-right:6px"></i>সাম্প্রতিক অর্ডার</span>
+            <button class="btn btn-ghost btn-sm" onclick="showPage('orders')">সব দেখুন →</button>
+          </div>
+          <div class="card-body" id="recent-orders">
+            <div class="loader-wrap"><i class="fas fa-circle-notch"></i><p>লোড হচ্ছে...</p></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title"><i class="fas fa-envelope" style="color:var(--success);margin-right:6px"></i>নতুন মেসেজ</span>
+            <button class="btn btn-ghost btn-sm" onclick="showPage('messages')">সব দেখুন →</button>
+          </div>
+          <div class="card-body" id="recent-messages">
+            <div class="loader-wrap"><i class="fas fa-circle-notch"></i><p>লোড হচ্ছে...</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== PRODUCTS PAGE ===== -->
+    <div class="page" id="page-products">
+      <div class="section-header">
+        <div class="section-title">প্রোডাক্ট <span>ম্যানেজমেন্ট</span></div>
+        <button class="btn btn-primary" onclick="openProductModal()">
+          <i class="fas fa-plus"></i> নতুন প্রোডাক্ট
+        </button>
+      </div>
+      <div class="table-wrap">
+        <div class="table-toolbar">
+          <div class="search-wrap">
+            <i class="fas fa-search"></i>
+            <input class="search-input" style="padding-left:36px" placeholder="প্রোডাক্ট খুঁজুন..." oninput="filterProducts(this.value)" id="productSearch">
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table id="productsTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>প্রোডাক্ট</th>
+                <th>মূল্য</th>
+                <th>অনলাইন মূল্য</th>
+                <th>ক্যাটাগরি</th>
+                <th>অ্যাকশন</th>
+              </tr>
+            </thead>
+            <tbody id="productsBody">
+              <tr><td colspan="6"><div class="loader-wrap"><i class="fas fa-circle-notch"></i><p>লোড হচ্ছে...</p></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ORDERS PAGE ===== -->
+    <div class="page" id="page-orders">
+      <div class="section-header">
+        <div class="section-title">অর্ডার <span>ম্যানেজমেন্ট</span></div>
+        <div class="filter-bar">
+          <button class="filter-btn active" onclick="filterOrders('all', this)">সব</button>
+          <button class="filter-btn" onclick="filterOrders('pending', this)">পেন্ডিং</button>
+          <button class="filter-btn" onclick="filterOrders('processing', this)">প্রসেসিং</button>
+          <button class="filter-btn" onclick="filterOrders('delivered', this)">ডেলিভার্ড</button>
+          <button class="filter-btn" onclick="filterOrders('cancelled', this)">বাতিল</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <div style="overflow-x:auto">
+          <table>
+            <thead>
+              <tr>
+                <th>অর্ডার ID</th>
+                <th>গ্রাহক</th>
+                <th>আইটেম</th>
+                <th>মোট</th>
+                <th>স্ট্যাটাস</th>
+                <th>তারিখ</th>
+                <th>অ্যাকশন</th>
+              </tr>
+            </thead>
+            <tbody id="ordersBody">
+              <tr><td colspan="7"><div class="loader-wrap"><i class="fas fa-circle-notch"></i><p>লোড হচ্ছে...</p></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== MESSAGES PAGE ===== -->
+    <div class="page" id="page-messages">
+      <div class="section-header">
+        <div class="section-title">কনট্যাক্ট <span>মেসেজ</span></div>
+        <button class="btn btn-danger btn-sm" onclick="deleteAllMessages()">
+          <i class="fas fa-trash"></i> সব মুছুন
+        </button>
+      </div>
+      <div id="messagesContainer">
+        <div class="loader-wrap"><i class="fas fa-circle-notch"></i><p>লোড হচ্ছে...</p></div>
+      </div>
+    </div>
+
+    <!-- ===== REVIEWS PAGE ===== -->
+    <div class="page" id="page-reviews">
+      <div class="section-header">
+        <div class="section-title">কাস্টমার <span>রিভিউ</span></div>
+        <button class="btn btn-primary" onclick="openAddReviewModal()">
+          <i class="fas fa-plus"></i> রিভিউ যোগ করুন
+        </button>
+      </div>
+      <div id="reviewsContainer">
+        <div class="loader-wrap"><i class="fas fa-circle-notch"></i><p>লোড হচ্ছে...</p></div>
+      </div>
+    </div>
+
+    <!-- ===== USERS PAGE ===== -->
+    <div class="page" id="page-users">
+      <div class="section-header">
+        <div class="section-title">রেজিস্টার্ড <span>ইউজার</span></div>
+      </div>
+      <div class="table-wrap">
+        <div style="overflow-x:auto">
+          <table>
+            <thead>
+              <tr>
+                <th>ইউজার</th>
+                <th>ইমেইল</th>
+                <th>UID</th>
+                <th>কার্ট আইটেম</th>
+                <th>উইশলিস্ট</th>
+              </tr>
+            </thead>
+            <tbody id="usersBody">
+              <tr><td colspan="5"><div class="loader-wrap"><i class="fas fa-circle-notch"></i><p>লোড হচ্ছে...</p></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PRODUCT MODAL ===== -->
+<div class="modal-overlay" id="productModal" onclick="if(event.target===this)closeProductModal()">
+  <div class="modal-box wide">
+    <button class="modal-close" onclick="closeProductModal()"><i class="fas fa-times"></i></button>
+    <h2 class="modal-title" id="productModalTitle">নতুন প্রোডাক্ট যোগ করুন</h2>
+    <div class="form-grid">
+      <div class="form-group full">
+        <label>প্রোডাক্ট নাম *</label>
+        <input type="text" id="pName" placeholder="যেমন: Samsung Galaxy S24 Ultra">
+      </div>
+      <div class="form-group">
+        <label>মডেল নম্বর</label>
+        <input type="text" id="pModel" placeholder="যেমন: SM-S928B">
+      </div>
+      <div class="form-group">
+        <label>ক্যাটাগরি</label>
+        <select id="pCategory">
+          <option value="">সিলেক্ট করুন</option>
+          <option value="Smartphone">Smartphone</option>
+          <option value="iPhone">iPhone</option>
+          <option value="Feature Phone">Feature Phone</option>
+          <option value="Accessories">Accessories</option>
+          <option value="Tablet">Tablet</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>দোকান মূল্য (৳) *</label>
+        <input type="number" id="pPrice" placeholder="29999">
+      </div>
+      <div class="form-group">
+        <label>অনলাইন মূল্য (৳)</label>
+        <input type="number" id="pOnlinePrice" placeholder="28999 (ঐচ্ছিক)">
+      </div>
+      <!-- ইমেজ সেকশন আপডেট -->
+<div class="form-group full">
+  <label>প্রধান ইমেজ URL (Image 1) *</label>
+  <input type="url" id="pImage1" placeholder="https://image1.jpg" oninput="previewImage(this.value, 'imgPreview1')">
+  <div class="img-preview" id="imgPreview1"><i class="fas fa-image"></i><span>Preview 1</span></div>
+</div>
+
+<div class="form-grid" style="grid-column: 1 / -1; gap: 1rem;">
+  <div class="form-group">
+    <label>অতিরিক্ত ইমেজ URL (Image 2)</label>
+    <input type="url" id="pImage2" placeholder="https://image2.jpg" oninput="previewImage(this.value, 'imgPreview2')">
+    <div class="img-preview" id="imgPreview2" style="height: 100px;"><i class="fas fa-image"></i></div>
+  </div>
+  <div class="form-group">
+    <label>অতিরিক্ত ইমেজ URL (Image 3)</label>
+    <input type="url" id="pImage3" placeholder="https://image3.jpg" oninput="previewImage(this.value, 'imgPreview3')">
+    <div class="img-preview" id="imgPreview3" style="height: 100px;"><i class="fas fa-image"></i></div>
+  </div>
+</div>
+      <div class="form-group full">
+        <label>বিবরণ</label>
+        <textarea id="pDesc" placeholder="প্রোডাক্টের বিবরণ লিখুন..."></textarea>
+      </div>
+      <div class="form-group full">
+        <label>স্পেসিফিকেশন (key: value ফরম্যাটে প্রতিটি লাইনে)</label>
+        <textarea id="pSpecs" placeholder="Display: 6.7 inch AMOLED&#10;Processor: Snapdragon 8 Gen 3&#10;RAM: 12GB&#10;Storage: 256GB&#10;Battery: 5000mAh" style="min-height:130px"></textarea>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeProductModal()">বাতিল</button>
+      <button class="btn btn-primary" onclick="saveProduct()" id="saveProductBtn">
+        <i class="fas fa-save"></i> সেভ করুন
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ORDER DETAIL MODAL ===== -->
+<div class="modal-overlay" id="orderModal" onclick="if(event.target===this)closeOrderModal()">
+  <div class="modal-box wide">
+    <button class="modal-close" onclick="closeOrderModal()"><i class="fas fa-times"></i></button>
+    <h2 class="modal-title">অর্ডার বিস্তারিত</h2>
+    <div id="orderDetailContent"></div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeOrderModal()">বন্ধ করুন</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ADD REVIEW MODAL ===== -->
+<div class="modal-overlay" id="reviewModal" onclick="if(event.target===this)closeReviewModal()">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeReviewModal()"><i class="fas fa-times"></i></button>
+    <h2 class="modal-title" id="reviewModalTitle">রিভিউ যোগ করুন</h2>
+    <div class="form-group">
+      <label>গ্রাহকের নাম *</label>
+      <input type="text" id="rName" placeholder="যেমন: Rahim Uddin">
+    </div>
+    <div class="form-group">
+      <label>অবস্থান</label>
+      <input type="text" id="rLocation" placeholder="যেমন: Noakhali">
+    </div>
+    <div class="form-group">
+      <label>রিভিউ টেক্সট *</label>
+      <textarea id="rText" placeholder="গ্রাহকের মতামত লিখুন..."></textarea>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeReviewModal()">বাতিল</button>
+      <button class="btn btn-primary" onclick="saveReview()"><i class="fas fa-save"></i> সেভ করুন</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- PIN LOGIC (plain script — must be outside module for onclick to work) -->
+<script>
+const SECRET_CODE = '9669';
+let pinEntry = '';
+
+function pinPress(digit) {
+  if (pinEntry.length >= 4) return;
+  pinEntry += digit;
+  updateDots();
+  if (pinEntry.length === 4) setTimeout(checkPin, 150);
+}
+
+function pinDelete() {
+  if (pinEntry.length === 0) return;
+  pinEntry = pinEntry.slice(0, -1);
+  updateDots();
+}
+
+function updateDots() {
+  for (let i = 0; i < 4; i++) {
+    const dot = document.getElementById('dot' + i);
+    if (!dot) return;
+    dot.classList.toggle('filled', i < pinEntry.length);
+    dot.classList.remove('shake');
+  }
+}
+
+function checkPin() {
+  if (pinEntry === SECRET_CODE) {
+    // Signal the module that PIN is correct
+    window._pinOk = true;
+    document.dispatchEvent(new CustomEvent('pinSuccess'));
+  } else {
+    for (let i = 0; i < 4; i++) {
+      const d = document.getElementById('dot' + i);
+      if (d) { d.classList.remove('filled'); d.classList.add('shake'); }
+    }
+    const errEl = document.getElementById('loginError');
+    errEl.textContent = '❌ কোড সঠিক নয়! আবার চেষ্টা করুন।';
+    errEl.classList.add('show');
+    setTimeout(() => {
+      pinEntry = '';
+      updateDots();
+      errEl.classList.remove('show');
+    }, 1200);
+  }
+}
+
+document.addEventListener('keydown', e => {
+  const screen = document.getElementById('loginScreen');
+  if (!screen || screen.style.display === 'none') return;
+  if (e.key >= '0' && e.key <= '9') pinPress(e.key);
+  if (e.key === 'Backspace') pinDelete();
+});
+</script>
+
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+import { getAuth, signInAnonymously, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+import { getDatabase, ref, onValue, push, set, get, update, remove } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCGVXXqxpHaXY4aYamsTaYzdvuT8OElvmA",
+  authDomain: "trusted-4ae72.firebaseapp.com",
+  databaseURL: "https://trusted-4ae72-default-rtdb.firebaseio.com",
+  projectId: "trusted-4ae72",
+  storageBucket: "trusted-4ae72.firebasestorage.app",
+  messagingSenderId: "1085376200713",
+  appId: "1:1085376200713:web:d007d2986ca8780fe4b8d8"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+
+// ===== GLOBAL STATE =====
+let allProducts = [], allOrders = [], allMessages = [], allReviews = [], allUsers = {};
+let editingProductId = null, editingReviewId = null;
+let currentOrderFilter = 'all';
+
+// ===== CLOCK =====
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clock').textContent = now.toLocaleTimeString('bn-BD');
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ===== TOAST =====
+window.showToast = function(msg, type = 'info') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  const icon = type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle';
+  toast.innerHTML = `<i class="fas fa-${icon}"></i> ${msg}`;
+  container.appendChild(toast);
+  setTimeout(() => toast.style.animation = 'none', 2700);
+  setTimeout(() => toast.remove(), 3000);
+};
+
+// ===== AUTH =====
+function showAdminPanel() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appShell').classList.add('visible');
+  document.getElementById('adminAvatar').textContent = 'A';
+  document.getElementById('adminName').textContent = 'Admin';
+  loadAllData();
+}
+
+// Listen for PIN success from the plain script
+document.addEventListener('pinSuccess', () => {
+  signInAnonymously(auth).catch(() => showAdminPanel());
+});
+
+onAuthStateChanged(auth, user => {
+  if (user) showAdminPanel();
+});
+
+window.doLogout = function() {
+  if (!confirm('লগআউট করবেন?')) return;
+  signOut(auth).catch(() => {});
+  pinEntry = '';
+  updateDots();
+  document.getElementById('loginError').classList.remove('show');
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('appShell').classList.remove('visible');
+};
+
+// ===== LOAD ALL DATA =====
+function loadAllData() {
+  // Products
+  onValue(ref(db, 'products'), snap => {
+    allProducts = snap.exists() ? Object.entries(snap.val()).map(([id, d]) => ({ id, ...d })).reverse() : [];
+    document.getElementById('stat-products').textContent = allProducts.length;
+    document.getElementById('badge-products').textContent = allProducts.length;
+    if (document.getElementById('page-products').classList.contains('active')) renderProducts();
+    if (document.getElementById('page-dashboard').classList.contains('active')) renderDashboard();
+  });
+
+  // Orders
+  onValue(ref(db, 'orders'), snap => {
+    allOrders = snap.exists() ? Object.entries(snap.val()).map(([id, d]) => ({ id, ...d })).reverse() : [];
+    const total = allOrders.reduce((s, o) => s + (parseFloat(o.total) || 0), 0);
+    document.getElementById('stat-orders').textContent = allOrders.length;
+    document.getElementById('badge-orders').textContent = allOrders.filter(o => o.status === 'pending').length;
+    document.getElementById('stat-revenue').textContent = total > 0 ? '৳' + Math.round(total).toLocaleString() : '–';
+    if (document.getElementById('page-orders').classList.contains('active')) renderOrders();
+    if (document.getElementById('page-dashboard').classList.contains('active')) renderDashboard();
+  });
+
+  // Messages
+  onValue(ref(db, 'messages'), snap => {
+    allMessages = snap.exists() ? Object.entries(snap.val()).map(([id, d]) => ({ id, ...d })).reverse() : [];
+    document.getElementById('stat-messages').textContent = allMessages.length;
+    document.getElementById('badge-messages').textContent = allMessages.length;
+    if (document.getElementById('page-messages').classList.contains('active')) renderMessages();
+    if (document.getElementById('page-dashboard').classList.contains('active')) renderDashboard();
+  });
+
+  // Reviews
+  onValue(ref(db, 'testimonials'), snap => {
+    allReviews = snap.exists() ? Object.entries(snap.val()).map(([id, d]) => ({ id, ...d })).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)) : [];
+    document.getElementById('badge-reviews').textContent = allReviews.length;
+    if (document.getElementById('page-reviews').classList.contains('active')) renderReviews();
+  });
+
+  // Users
+  onValue(ref(db, 'users'), snap => {
+    allUsers = snap.exists() ? snap.val() : {};
+    if (document.getElementById('page-users').classList.contains('active')) renderUsers();
+  });
+}
+
+// ===== NAVIGATION =====
+window.showPage = function(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(`page-${page}`).classList.add('active');
+  const btn = [...document.querySelectorAll('.nav-item')].find(b => b.textContent.includes(pageNameMap[page] || ''));
+  if (btn) btn.classList.add('active');
+  document.getElementById('topbarTitle').textContent = pageTitleMap[page] || page;
+  // Render on demand
+  if (page === 'dashboard') renderDashboard();
+  if (page === 'products') renderProducts();
+  if (page === 'orders') renderOrders();
+  if (page === 'messages') renderMessages();
+  if (page === 'reviews') renderReviews();
+  if (page === 'users') renderUsers();
+  // Close mobile sidebar
+  document.getElementById('sidebar').classList.remove('mobile-open');
+};
+
+const pageNameMap = { dashboard: 'ড্যাশবোর্ড', products: 'প্রোডাক্ট', orders: 'অর্ডার', messages: 'মেসেজ', reviews: 'রিভিউ', users: 'ইউজার' };
+const pageTitleMap = { dashboard: 'ড্যাশবোর্ড', products: 'প্রোডাক্ট ম্যানেজমেন্ট', orders: 'অর্ডার ম্যানেজমেন্ট', messages: 'কনট্যাক্ট মেসেজ', reviews: 'কাস্টমার রিভিউ', users: 'রেজিস্টার্ড ইউজার' };
+
+window.toggleSidebar = function() {
+  document.getElementById('sidebar').classList.toggle('mobile-open');
+};
+
+window.refreshData = function() {
+  showToast('ডেটা রিফ্রেশ হচ্ছে...', 'info');
+  loadAllData();
+};
+
+// ===== DASHBOARD =====
+function renderDashboard() {
+  // Recent Orders
+  const oel = document.getElementById('recent-orders');
+  if (allOrders.length === 0) {
+    oel.innerHTML = '<div class="empty-state"><i class="fas fa-shopping-bag"></i><h3>কোনো অর্ডার নেই</h3></div>';
+  } else {
+    oel.innerHTML = allOrders.slice(0, 5).map(o => `
+      <div class="order-row">
+        <div class="order-info">
+          <div class="order-name">${o.name || 'অজানা'}</div>
+          <div class="order-meta">${o.phone || ''} · ${formatDate(o.createdAt)}</div>
+        </div>
+        <span class="badge badge-${o.status || 'pending'}">${statusLabel(o.status)}</span>
+        <span class="order-price">৳${parseFloat(o.total||0).toLocaleString()}</span>
+      </div>`).join('');
+  }
+  // Recent Messages
+  const mel = document.getElementById('recent-messages');
+  if (allMessages.length === 0) {
+    mel.innerHTML = '<div class="empty-state"><i class="fas fa-envelope"></i><h3>কোনো মেসেজ নেই</h3></div>';
+  } else {
+    mel.innerHTML = allMessages.slice(0, 4).map(m => `
+      <div class="msg-row">
+        <div class="msg-sender">${m.name || 'অজানা'}</div>
+        <div class="msg-subject">${m.subject || 'No Subject'}</div>
+        <div class="msg-preview">${m.message || ''}</div>
+        <div class="msg-time">${m.email || ''} · ${formatDate(m.createdAt)}</div>
+      </div>`).join('');
+  }
+}
+
+// ===== PRODUCTS =====
+let productSearchTerm = '';
+function renderProducts(search) {
+  if (search !== undefined) productSearchTerm = search;
+  const body = document.getElementById('productsBody');
+  let list = [...allProducts];
+  if (productSearchTerm) list = list.filter(p => p.name.toLowerCase().includes(productSearchTerm.toLowerCase()));
+  if (list.length === 0) {
+    body.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i class="fas fa-box-open"></i><h3>কোনো প্রোডাক্ট পাওয়া যায়নি</h3></div></td></tr>`;
+    return;
+  }
+  body.innerHTML = list.map((p, i) => `
+    <tr>
+      <td style="color:var(--text-muted);font-family:monospace">${i+1}</td>
+      <td>
+        <div class="product-thumb-cell">
+          <div class="product-thumb">
+            ${p.imageUrl ? `<img src="${p.imageUrl}" onerror="this.parentElement.innerHTML='<i class=\\'fas fa-image\\'></i>'">` : '<i class="fas fa-image" style="color:var(--text-muted)"></i>'}
+          </div>
+          <div>
+            <div class="product-thumb-name">${p.name}</div>
+            <div class="product-thumb-model">${p.model || '—'}</div>
+          </div>
+        </div>
+      </td>
+      <td style="font-family:monospace;color:var(--accent);font-weight:700">৳${parseFloat(p.price||0).toLocaleString()}</td>
+      <td style="font-size:0.8rem;color:var(--success)">${p.onlinePrice ? '৳'+parseFloat(p.onlinePrice).toLocaleString() : '—'}</td>
+      <td><span class="badge badge-new">${p.category || 'Smartphone'}</span></td>
+      <td>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-ghost btn-sm btn-icon" onclick="editProduct('${p.id}')" title="এডিট"><i class="fas fa-edit"></i></button>
+          <button class="btn btn-danger btn-sm btn-icon" onclick="deleteProduct('${p.id}','${p.name.replace(/'/g,"\\'")}')"><i class="fas fa-trash"></i></button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+window.filterProducts = function(val) { renderProducts(val); };
+
+window.openProductModal = function(id) {
+  editingProductId = id || null;
+  const modal = document.getElementById('productModal');
+  const title = document.getElementById('productModalTitle');
+  
+  if (id) {
+    const p = allProducts.find(x => x.id === id);
+    if (!p) return;
+    title.textContent = 'প্রোডাক্ট এডিট করুন';
+    document.getElementById('pName').value = p.name || '';
+    document.getElementById('pModel').value = p.model || '';
+    document.getElementById('pCategory').value = p.category || '';
+    document.getElementById('pPrice').value = p.price || '';
+    document.getElementById('pOnlinePrice').value = p.onlinePrice || '';
+    
+    // ইমেজ গুলো সেট করা
+    document.getElementById('pImage1').value = p.imageUrl || '';
+    document.getElementById('pImage2').value = (p.images && p.images[0]) ? p.images[0] : '';
+    document.getElementById('pImage3').value = (p.images && p.images[1]) ? p.images[1] : '';
+    
+    previewImage(p.imageUrl, 'imgPreview1');
+    previewImage(document.getElementById('pImage2').value, 'imgPreview2');
+    previewImage(document.getElementById('pImage3').value, 'imgPreview3');
+    
+    document.getElementById('pDesc').value = p.description || '';
+    document.getElementById('pSpecs').value = p.specs || '';
+  } else {
+    title.textContent = 'নতুন প্রোডাক্ট যোগ করুন';
+    ['pName','pModel','pCategory','pPrice','pOnlinePrice','pImage1','pImage2','pImage3','pDesc','pSpecs'].forEach(fieldId => {
+      const field = document.getElementById(fieldId);
+      if(field) field.value = '';
+    });
+    document.getElementById('imgPreview1').innerHTML = '<i class="fas fa-image"></i><span>Preview 1</span>';
+    document.getElementById('imgPreview2').innerHTML = '<i class="fas fa-image"></i>';
+    document.getElementById('imgPreview3').innerHTML = '<i class="fas fa-image"></i>';
+  }
+  modal.classList.add('open');
+};
+window.closeProductModal = function() { document.getElementById('productModal').classList.remove('open'); };
+
+window.previewImage = function(url, containerId) {
+  const el = document.getElementById(containerId);
+  if (!el) return; // যদি ID খুঁজে না পায় তবে এরর দিবে না
+  if (url) {
+    el.innerHTML = `<img src="${url}" onerror="this.parentElement.innerHTML='<i class=\\'fas fa-image\\'></i>'">`;
+  } else {
+    el.innerHTML = '<i class="fas fa-image"></i>';
+  }
+};
+
+window.saveProduct = async function() {
+  const name = document.getElementById('pName').value.trim();
+  const price = parseFloat(document.getElementById('pPrice').value);
+  if (!name || !price) { showToast('নাম ও মূল্য আবশ্যিক!', 'error'); return; }
+  
+  const btn = document.getElementById('saveProductBtn');
+  btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> সেভ হচ্ছে...'; btn.disabled = true;
+
+  const img1 = document.getElementById('pImage1').value.trim();
+  const img2 = document.getElementById('pImage2').value.trim();
+  const img3 = document.getElementById('pImage3').value.trim();
+  
+  const additionalImages = [];
+  if (img2) additionalImages.push(img2);
+  if (img3) additionalImages.push(img3);
+
+  const data = {
+    name,
+    model: document.getElementById('pModel').value.trim(),
+    category: document.getElementById('pCategory').value,
+    price,
+    onlinePrice: parseFloat(document.getElementById('pOnlinePrice').value) || null,
+    imageUrl: img1,
+    images: additionalImages,
+    description: document.getElementById('pDesc').value.trim(),
+    specs: document.getElementById('pSpecs').value.trim(),
+    updatedAt: Date.now()
+  };
+
+  try {
+    if (editingProductId) await update(ref(db, `products/${editingProductId}`), data);
+    else {
+      data.createdAt = Date.now();
+      await push(ref(db, 'products'), data);
+    }
+    showToast('সফলভাবে সেভ হয়েছে!', 'success');
+    closeProductModal();
+  } catch(e) { 
+    showToast('Error: ' + e.message, 'error'); 
+  }
+  btn.innerHTML = '<i class="fas fa-save"></i> সেভ করুন'; btn.disabled = false;
+};
+window.editProduct = function(id) { openProductModal(id); };
+
+window.deleteProduct = async function(id, name) {
+  if (!confirm(`"${name}" মুছে ফেলবেন?`)) return;
+  try {
+    await remove(ref(db, `products/${id}`));
+    showToast('প্রোডাক্ট মুছে ফেলা হয়েছে।', 'success');
+  } catch(e) { showToast('সমস্যা হয়েছে!', 'error'); }
+};
+
+// ===== ORDERS =====
+function renderOrders() {
+  const body = document.getElementById('ordersBody');
+  let list = [...allOrders];
+  if (currentOrderFilter !== 'all') list = list.filter(o => (o.status || 'pending') === currentOrderFilter);
+  if (list.length === 0) {
+    body.innerHTML = `<tr><td colspan="7"><div class="empty-state"><i class="fas fa-shopping-bag"></i><h3>কোনো অর্ডার নেই</h3></div></td></tr>`;
+    return;
+  }
+  body.innerHTML = list.map(o => `
+    <tr>
+      <td style="font-family:monospace;font-size:0.75rem;color:var(--text-muted)">${o.id.slice(-8).toUpperCase()}</td>
+      <td>
+        <div style="font-weight:600">${o.name || 'অজানা'}</div>
+        <div style="font-size:0.73rem;color:var(--text-muted)">${o.phone || ''}</div>
+      </td>
+      <td style="font-size:0.8rem">${Array.isArray(o.items) ? o.items.map(i=>i.name||i.id).join(', ').substring(0,40)+'...' : (typeof o.items === 'object' ? Object.values(o.items).map(i=>i.name||i.id).join(', ').substring(0,40) : '—')}</td>
+      <td style="font-family:monospace;color:var(--accent);font-weight:700">৳${parseFloat(o.total||0).toLocaleString()}</td>
+      <td>
+        <select class="status-select" onchange="updateOrderStatus('${o.id}', this.value)">
+          <option value="pending" ${(o.status||'pending')==='pending'?'selected':''}>⏳ পেন্ডিং</option>
+          <option value="processing" ${o.status==='processing'?'selected':''}>🔄 প্রসেসিং</option>
+          <option value="delivered" ${o.status==='delivered'?'selected':''}>✅ ডেলিভার্ড</option>
+          <option value="cancelled" ${o.status==='cancelled'?'selected':''}>❌ বাতিল</option>
+        </select>
+      </td>
+      <td style="font-size:0.78rem;color:var(--text-muted)">${formatDate(o.createdAt)}</td>
+      <td>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-ghost btn-sm" onclick="viewOrder('${o.id}')"><i class="fas fa-eye"></i></button>
+          <button class="btn btn-danger btn-sm btn-icon" onclick="deleteOrder('${o.id}')"><i class="fas fa-trash"></i></button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+window.filterOrders = function(status, btn) {
+  currentOrderFilter = status;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderOrders();
+};
+
+window.updateOrderStatus = async function(id, status) {
+  try {
+    await update(ref(db, `orders/${id}`), { status, updatedAt: Date.now() });
+    showToast('স্ট্যাটাস আপডেট হয়েছে!', 'success');
+  } catch(e) { showToast('সমস্যা হয়েছে!', 'error'); }
+};
+
+window.viewOrder = function(id) {
+  const o = allProducts.find(x => x.id === id) || allOrders.find(x => x.id === id);
+  if (!o) return;
+
+  let itemsHtml = '';
+  const items = Array.isArray(o.items) ? o.items : (typeof o.items === 'object' && o.items ? Object.values(o.items) : []);
+  itemsHtml = items.map(i => `<div class="detail-row"><span class="detail-label">${i.name||i.id}</span><span class="detail-val">৳${parseFloat(i.price||0).toLocaleString()} × ${i.qty||1}</span></div>`).join('');
+  window.closeOrderModal = function() { 
+  document.getElementById('orderModal').classList.remove('open'); 
+};
+  // চেক করা হচ্ছে ডেটা কি সরাসরি আছে নাকি shipping অবজেক্টের ভেতরে
+  const customerName = o.shipping?.name || o.name || '—';
+  const customerPhone = o.shipping?.phone || o.phone || '—';
+  const customerAddress = (o.shipping?.address || '') + (o.shipping?.city ? ', ' + o.shipping.city : '') || o.address || '—';
+
+  document.getElementById('orderDetailContent').innerHTML = `
+    <div class="detail-row"><span class="detail-label">অর্ডার ID</span><span class="detail-val" style="font-family:monospace">${o.id}</span></div>
+    <div class="detail-row"><span class="detail-label">গ্রাহক</span><span class="detail-val">${customerName}</span></div>
+    <div class="detail-row"><span class="detail-label">ফোন</span><span class="detail-val">${customerPhone}</span></div>
+    <div class="detail-row"><span class="detail-label">ঠিকানা</span><span class="detail-val">${customerAddress}</span></div>
+    <div class="detail-row"><span class="detail-label">ইমেইল</span><span class="detail-val">${o.userEmail || '—'}</span></div>
+    <div class="detail-row"><span class="detail-label">স্ট্যাটাস</span><span class="detail-val"><span class="badge badge-${o.status||'pending'}">${statusLabel(o.status)}</span></span></div>
+    <hr style="border-color:var(--border);margin:1rem 0">
+    <div style="font-size:0.8rem;font-weight:700;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase">আইটেম সমূহ</div>
+    ${itemsHtml || '<p style="color:var(--text-muted);font-size:0.85rem">কোনো আইটেম নেই</p>'}
+    <hr style="border-color:var(--border);margin:1rem 0">
+    <div class="detail-row"><span class="detail-label" style="font-weight:700">মোট</span><span class="detail-val" style="font-size:1.1rem;font-weight:800;color:var(--accent);font-family:monospace">৳${parseFloat(o.total||0).toLocaleString()}</span></div>
+    <div class="detail-row"><span class="detail-label">তারিখ</span><span class="detail-val">${formatDate(o.createdAt)}</span></div>`;
+  
+  document.getElementById('orderModal').classList.add('open');
+};
+window.deleteOrder = async function(id) {
+  if (!confirm('অর্ডারটি মুছে ফেলবেন?')) return;
+  try { await remove(ref(db, `orders/${id}`)); showToast('অর্ডার মুছে ফেলা হয়েছে।', 'success'); }
+  catch(e) { showToast('সমস্যা হয়েছে!', 'error'); }
+};
+
+// ===== MESSAGES =====
+function renderMessages() {
+  const el = document.getElementById('messagesContainer');
+  if (allMessages.length === 0) {
+    el.innerHTML = '<div class="empty-state"><i class="fas fa-envelope-open"></i><h3>কোনো মেসেজ নেই</h3><p>গ্রাহকরা যোগাযোগ করলে এখানে দেখা যাবে।</p></div>';
+    return;
+  }
+  el.innerHTML = allMessages.map(m => `
+    <div class="message-card unread">
+      <div class="mc-header">
+        <div>
+          <div class="mc-sender">${m.name || 'অজানা'}</div>
+          
+          <!-- ইমেইল এবং ফোন নম্বর এখানে দেখানো হচ্ছে -->
+          <div style="display: flex; flex-direction: column; gap: 2px;">
+            <div class="mc-email">
+              <i class="fas fa-envelope" style="font-size:0.6rem;margin-right:4px"></i>${m.email || '—'}
+            </div>
+            <div class="mc-email" style="color: var(--accent); font-weight: 600;">
+              <i class="fas fa-phone" style="font-size:0.6rem;margin-right:4px"></i>${m.phone || 'নম্বর নেই'} 
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:6px;align-items:center">
+          <div style="font-size:0.72rem;color:var(--text-muted)">${formatDate(m.createdAt)}</div>
+          <button class="btn btn-danger btn-sm btn-icon" onclick="deleteMessage('${m.id}')"><i class="fas fa-trash"></i></button>
+        </div>
+      </div>
+      <div class="mc-subject"><i class="fas fa-tag" style="font-size:0.6rem;margin-right:4px"></i>${m.subject || 'No Subject'}</div>
+      <div class="mc-body">${m.message || ''}</div>
+      
+      <!-- সরাসরি কল দেওয়ার বাটন (মোবাইল থেকে অ্যাডমিন প্যানেল চালালে কাজে আসবে) -->
+      ${m.phone ? `
+        <div style="margin-top: 10px;">
+          <a href="tel:${m.phone}" class="btn btn-primary btn-sm" style="display: inline-flex; align-items: center; gap: 5px; text-decoration: none;">
+            <i class="fas fa-phone-alt"></i> কল দিন
+          </a>
+          <a href="https://wa.me/88${m.phone}" target="_blank" class="btn btn-success btn-sm" style="display: inline-flex; align-items: center; gap: 5px; text-decoration: none; margin-left: 5px; background: #25d366; color: white;">
+            <i class="fab fa-whatsapp"></i> WhatsApp
+          </a>
+        </div>
+      ` : ''}
+    </div>`).join('');
+}
+
+window.deleteMessage = async function(id) {
+  if (!confirm('মেসেজটি মুছে ফেলবেন?')) return;
+  try { await remove(ref(db, `messages/${id}`)); showToast('মেসেজ মুছে ফেলা হয়েছে।', 'success'); }
+  catch(e) { showToast('সমস্যা হয়েছে!', 'error'); }
+};
+
+window.deleteAllMessages = async function() {
+  if (allMessages.length === 0) return;
+  if (!confirm(`সব ${allMessages.length}টি মেসেজ মুছে ফেলবেন?`)) return;
+  try { await remove(ref(db, 'messages')); showToast('সব মেসেজ মুছে ফেলা হয়েছে।', 'success'); }
+  catch(e) { showToast('সমস্যা হয়েছে!', 'error'); }
+};
+
+// ===== REVIEWS =====
+function renderReviews() {
+  const el = document.getElementById('reviewsContainer');
+  if (allReviews.length === 0) {
+    el.innerHTML = '<div class="empty-state"><i class="fas fa-star"></i><h3>কোনো রিভিউ নেই</h3></div>';
+    return;
+  }
+  el.innerHTML = allReviews.map(r => `
+    <div class="review-card">
+      <div class="rc-header">
+        <div class="rc-avatar">${r.name ? r.name.charAt(0).toUpperCase() : '?'}</div>
+        <div>
+          <div class="rc-name">${r.name || 'অজানা'}</div>
+          <div class="rc-location"><i class="fas fa-map-marker-alt" style="font-size:0.6rem"></i> ${r.location || '—'}</div>
+        </div>
+        <div style="margin-left:auto;display:flex;gap:6px">
+          <button class="btn btn-danger btn-sm btn-icon" onclick="deleteReview('${r.id}')"><i class="fas fa-trash"></i></button>
+        </div>
+      </div>
+      <div class="rc-text">"${r.text || ''}"</div>
+      <div class="rc-votes">
+        <span class="vote-pill yes"><i class="fas fa-thumbs-up"></i> ${r.yesCount || 0} Helpful</span>
+        <span class="vote-pill no"><i class="fas fa-thumbs-down"></i> ${r.noCount || 0} Not helpful</span>
+      </div>
+      ${r.createdAt ? `<div style="font-size:0.7rem;color:var(--text-muted);margin-top:8px">${formatDate(r.createdAt)}</div>` : ''}
+    </div>`).join('');
+}
+
+window.openAddReviewModal = function() {
+  ['rName','rLocation','rText'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('reviewModal').classList.add('open');
+};
+window.closeReviewModal = function() { document.getElementById('reviewModal').classList.remove('open'); };
+
+window.saveReview = async function() {
+  const name = document.getElementById('rName').value.trim();
+  const text = document.getElementById('rText').value.trim();
+  if (!name || !text) { showToast('নাম ও রিভিউ আবশ্যিক!', 'error'); return; }
+  try {
+    await push(ref(db, 'testimonials'), {
+      name, text,
+      location: document.getElementById('rLocation').value.trim(),
+      yesCount: 0, noCount: 0, createdAt: Date.now()
+    });
+    showToast('রিভিউ যোগ হয়েছে!', 'success');
+    closeReviewModal();
+  } catch(e) { showToast('সমস্যা হয়েছে!', 'error'); }
+};
+
+window.deleteReview = async function(id) {
+  if (!confirm('রিভিউটি মুছে ফেলবেন?')) return;
+  try { await remove(ref(db, `testimonials/${id}`)); showToast('রিভিউ মুছে ফেলা হয়েছে।', 'success'); }
+  catch(e) { showToast('সমস্যা হয়েছে!', 'error'); }
+};
+
+// ===== USERS =====
+function renderUsers() {
+  const body = document.getElementById('usersBody');
+  const entries = Object.entries(allUsers);
+  if (entries.length === 0) {
+    body.innerHTML = `<tr><td colspan="5"><div class="empty-state"><i class="fas fa-users"></i><h3>কোনো রেজিস্টার্ড ইউজার নেই</h3></div></td></tr>`;
+    return;
+  }
+  body.innerHTML = entries.map(([uid, data]) => {
+    const cart = data.cart ? Object.values(data.cart) : [];
+    const wish = data.wishlist ? Object.values(data.wishlist) : [];
+    const name = data.name || data.displayName || 'Unknown';
+    const email = data.email || '—';
+    return `<tr>
+      <td>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="user-avatar">${name.charAt(0).toUpperCase()}</div>
+          <div>
+            <div style="font-weight:600;font-size:0.87rem">${name}</div>
+          </div>
+        </div>
+      </td>
+      <td style="font-size:0.82rem;color:var(--text-muted)">${email}</td>
+      <td style="font-family:monospace;font-size:0.72rem;color:var(--text-muted)">${uid.substring(0,16)}...</td>
+      <td><span class="badge badge-processing">${cart.length} আইটেম</span></td>
+      <td><span class="badge badge-new">${wish.length} আইটেম</span></td>
+    </tr>`;
+  }).join('');
+}
+
+// ===== HELPERS =====
+function formatDate(ts) {
+  if (!ts) return '—';
+  const d = new Date(ts);
+  return d.toLocaleDateString('bn-BD', { day:'2-digit', month:'short', year:'numeric' }) + ' ' + d.toLocaleTimeString('bn-BD', { hour:'2-digit', minute:'2-digit' });
+}
+
+function statusLabel(s) {
+  return { pending: 'পেন্ডিং', processing: 'প্রসেসিং', delivered: 'ডেলিভার্ড', cancelled: 'বাতিল' }[s] || 'পেন্ডিং';
+}
+
+</script>
+</body>
+</html>
